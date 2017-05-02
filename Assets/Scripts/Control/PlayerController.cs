@@ -6,6 +6,14 @@ public class PlayerController : MonoBehaviour {
 
 	static List<Player> players;
 
+	static Dictionary<KeyCode,Vector3> key_directions = new Dictionary<KeyCode, Vector3>
+	{
+		{KeyCode.W,new Vector3(0,1,0)},
+		{KeyCode.S,new Vector3(0,-1,0)},
+		{KeyCode.D,new Vector3(1,0,0)},
+		{KeyCode.A,new Vector3(-1,0,0)}
+	};
+
 	void Awake () {
 		Transform playerHolder = GameObject.Find ("Players").transform;
 		players = new List<Player> ();
@@ -16,14 +24,9 @@ public class PlayerController : MonoBehaviour {
 	
 	void Update () {
 		Vector3 move = new Vector3();
-		if (Input.GetKeyDown (KeyCode.W)) {
-			move = new Vector3 (0, LevelController.tileScale, 0);
-		} else if (Input.GetKeyDown (KeyCode.S)) {
-			move = new Vector3 (0, -LevelController.tileScale, 0);
-		} else if (Input.GetKeyDown (KeyCode.D)) {
-			move = new Vector3 (LevelController.tileScale, 0, 0);
-		} else if (Input.GetKeyDown (KeyCode.A)) {
-			move = new Vector3 (-LevelController.tileScale, 0, 0);
+		foreach (KeyValuePair<KeyCode,Vector3> pair in key_directions) {
+			if (Input.GetKeyDown (pair.Key))
+				move = pair.Value * LevelController.tileScale;
 		}
 		for (int i = 0; i < players.Count; i++) {
 			players [i].transform.Translate (move);

@@ -12,6 +12,9 @@ public class LevelController : MonoBehaviour {
 	float timer;
 	List<float> pulseActivations;
 
+	public int pulsesPerRowDissapear;
+	int disappearPulses;
+
 	Transform track;
 	int rowIndex;
 
@@ -23,8 +26,15 @@ public class LevelController : MonoBehaviour {
 		timer = 0;
 		defaultColor = Color.white;
 		tileScale = 1;
+		disappearPulses = 0;
 
 		pulseActivations = new List<float> { 0, 0 };
+
+		LevelController.pulsed += DisappearRow;
+	}
+
+	void OnDestroy() {
+		LevelController.pulsed -= DisappearRow;
 	}
 
 	void Start () {
@@ -33,30 +43,39 @@ public class LevelController : MonoBehaviour {
 	void Update () {
 		timer += Time.deltaTime;
 		if (timer % debugPulse < debugPulse / 2 && (timer - pulseActivations [0]) > debugPulse / 2) {
-			print ("Half pulse: " + timer);
+			//print ("Half pulse: " + timer);
 			pulseActivations [0] = timer;
-			pulsed (null, new PulseEventArgs (.25f));
+			pulsed (null, new PulseEventArgs (PulseEventArgs.PulseValue.Half));
 		}
 		if (timer % (2*debugPulse) < debugPulse && (timer - pulseActivations [1]) > debugPulse) {
-			print ("Full pulse: " + timer);
+			//print ("Full pulse: " + timer);
 			pulseActivations [1] = timer;
-			pulsed (null, new PulseEventArgs (.5f));
-			DisappearRow ();
+			pulsed (null, new PulseEventArgs (PulseEventArgs.PulseValue.Full));
 		}
 	}
 
-	void DisappearRow() {
-		Transform child = track.GetChild (rowIndex);
-		PlayerController.KillPlayersAt (child.transform.position.y);
-		child.gameObject.SetActive (false);
-		rowIndex++;
+	void DisappearRow(object sender, PulseEventArgs pulseEvent) {
+		if (pulseEvent.pulseValue == PulseEventArgs.PulseValue.Full)
+			disappearPulses++;
+		if (disappearPulses >= pulsesPerRowDissapear) {
+			Transform child = track.GetChild (rowIndex);
+			PlayerController.KillPlayersAt (child.transform.position.y);
+			child.gameObject.SetActive (false);
+			rowIndex++;
+			disappearPulses = 0;
+		}
 	}
 }
 
 public class PulseEventArgs : EventArgs {
-	public float pulseValue;
+	public enum PulseValue {
+		Half,
+		Full
+	};
 
-	public PulseEventArgs(float val) {
+	public PulseValue pulseValue;
+
+	public PulseEventArgs(PulseValue val) {
 		pulseValue = val;
 	}
 }

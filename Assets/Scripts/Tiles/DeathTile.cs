@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class DeathTile : Tile {
 
-	Color deathColor;
 	public bool startActive;
-	public float pulseToggledAt = .25f;
+	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Half;
+	public int numPulsesToToggle;
 
 	protected bool isActive;
+	Color deathColor;
+	int togglePulses;
 
 	protected override void Start () {
 		base.Start ();
+		togglePulses = 0;
 
 		isActive = startActive;
 		deathColor = sRend.color;
@@ -20,8 +23,12 @@ public class DeathTile : Tile {
 
 	public override void ReceivePulse(object sender, PulseEventArgs pulseEvent) {
 		if (pulseEvent.pulseValue == pulseToggledAt) {
-			isActive = !isActive;
-			UpdateTile ();
+			togglePulses++;
+			if (togglePulses >= numPulsesToToggle) {
+				isActive = !isActive;
+				UpdateTile ();
+				togglePulses = 0;
+			}
 		}
 	}
 

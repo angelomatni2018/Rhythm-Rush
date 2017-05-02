@@ -551,6 +551,11 @@ Prefab:
       propertyPath: startActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114350716360711648, guid: dc5deb88c3f784548ad82d3704f1f010,
+        type: 2}
+      propertyPath: numPulsesToToggle
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: dc5deb88c3f784548ad82d3704f1f010, type: 2}
   m_IsPrefabParent: 0
@@ -1347,7 +1352,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f28d64bbb7bceb943b868e56318bb932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugPulse: 0.75
+  debugPulse: 0.25
+  pulsesPerRowDissapear: 3
 --- !u!4 &2020708565
 Transform:
   m_ObjectHideFlags: 0
