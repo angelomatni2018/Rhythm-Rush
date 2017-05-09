@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour {
+
+	public Slider healthSlider;
 
 	// Use this for initialization
 	void Start () {
@@ -20,6 +23,7 @@ public class Player : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D col) {
-		Kill ();
+		healthSlider.value -= 0.11f;
+//		Kill ();
 	}
 }
