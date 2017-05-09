@@ -5,6 +5,13 @@ using System;
 
 public class LevelController : MonoBehaviour {
 
+	public enum Difficulty {
+		Easy,
+		Normal,
+		Hard
+	};
+	public static Difficulty levelDifficulty;
+	public static float quarterPulse;
 	public static float tileScale;
 	public static Color defaultColor;
 
@@ -18,6 +25,8 @@ public class LevelController : MonoBehaviour {
 	Transform track;
 	int rowIndex;
 
+	public int debugDifficulty;
+
 	public static event EventHandler<PulseEventArgs> pulsed;
 
 	void Awake() {
@@ -27,6 +36,8 @@ public class LevelController : MonoBehaviour {
 		defaultColor = Color.white;
 		tileScale = 1;
 		disappearPulses = 0;
+		levelDifficulty = (Difficulty)debugDifficulty;
+		quarterPulse = debugPulse;
 
 		pulseActivations = new List<float> { 0, 0 };
 
