@@ -52,8 +52,9 @@ public class PlayerController : MonoBehaviour {
 
 	Vector3 ScaledMove(Vector3 dir) {
 		Vector3 maxMove = dir * LevelController.tileScale;
-		print (-(Time.time - lastPulse) * pulseThreshold [(int)LevelController.levelDifficulty]);
-		float modifier = Mathf.Exp (-(Time.time - lastPulse) * pulseThreshold[(int)LevelController.levelDifficulty]);
+		//print (-(Time.time - lastPulse) * pulseThreshold [(int)LevelController.levelDifficulty]);
+		//float modifier = Mathf.Exp (-(Time.time - lastPulse) * pulseThreshold[(int)LevelController.levelDifficulty]);
+		float modifier = 1;
 		return modifier * maxMove;
 	}
 
