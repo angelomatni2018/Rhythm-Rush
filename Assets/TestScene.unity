@@ -247,6 +247,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9d627cf4dde52744864e1dcd07cc7a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pulseToggledAt: 0
+  numPulsesPerToggle: 4
 --- !u!1 &174530553
 GameObject:
   m_ObjectHideFlags: 0
@@ -983,7 +985,7 @@ Prefab:
     - target: {fileID: 114350716360711648, guid: dc5deb88c3f784548ad82d3704f1f010,
         type: 2}
       propertyPath: numPulsesToToggle
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: dc5deb88c3f784548ad82d3704f1f010, type: 2}
@@ -2193,9 +2195,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pulseThreshold:
-  - 0.05
   - 0.1
+  - 0.2
   - 0.5
+  numPulsesPerInput: 4
+  pulseToggledAt: 1
 --- !u!114 &2020708564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2208,7 +2212,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugPulse: 0.25
-  pulsesPerRowDissapear: 3
+  pulsesPerRowDissapear: 8
   debugDifficulty: 0
 --- !u!4 &2020708565
 Transform:

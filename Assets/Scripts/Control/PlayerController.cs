@@ -9,6 +9,10 @@ public class PlayerController : MonoBehaviour {
 	// Determines how close you have to input to the beat of the music
 	public float[] pulseThreshold;
 
+	public int numPulsesPerInput = 4;
+	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Full;
+	int numPulses;
+
 	public static List<Player> players;
 
 	static Dictionary<KeyCode,Vector3> key_directions = new Dictionary<KeyCode, Vector3>
@@ -26,6 +30,7 @@ public class PlayerController : MonoBehaviour {
 			players.Add(playerHolder.GetChild (i).GetComponent<Player> ());
 		}
 
+		numPulses = 0;
 		LevelController.pulsed += ReceivePulse;
 	}
 
@@ -47,7 +52,9 @@ public class PlayerController : MonoBehaviour {
 
 	Vector3 ScaledMove(Vector3 dir) {
 		Vector3 maxMove = dir * LevelController.tileScale;
-		float modifier = Mathf.Exp (-(Time.time - lastPulse) * pulseThreshold[(int)LevelController.levelDifficulty]);
+		//print (-(Time.time - lastPulse) * pulseThreshold [(int)LevelController.levelDifficulty]);
+		//float modifier = Mathf.Exp (-(Time.time - lastPulse) * pulseThreshold[(int)LevelController.levelDifficulty]);
+		float modifier = 1;
 		return modifier * maxMove;
 	}
 
@@ -59,6 +66,12 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	public void ReceivePulse(object sender, PulseEventArgs pulseEvent) {
-		lastPulse = Time.time;
+		if (pulseEvent.pulseValue == pulseToggledAt) {
+			numPulses++;
+			if (numPulses == numPulsesPerInput) {
+				lastPulse = LevelController.GetPulseActivation((int)pulseToggledAt);
+				numPulses = 0;
+			}
+		}
 	}
 }

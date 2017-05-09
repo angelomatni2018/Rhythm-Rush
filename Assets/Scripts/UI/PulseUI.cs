@@ -6,25 +6,39 @@ using UnityEngine.UI;
 public class PulseUI : MonoBehaviour {
 
 	Image pulseIndicator;
-	bool fadeIn;
+	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Full;
+	public int numPulsesPerToggle = 4;
+
+	int numPulses;
 
 	// Use this for initialization
 	void Awake () {
 		pulseIndicator = GetComponent<Image> ();
-		fadeIn = false;
+		LevelController.pulsed += ReceivePulse;
+		numPulses = 0;
+	}
+
+	void OnDestroy() {
+		LevelController.pulsed -= ReceivePulse;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		float toggle = fadeIn ? 1 : -1;
-		float newA = pulseIndicator.color.a + toggle * Time.deltaTime / LevelController.quarterPulse;
-		if (newA > 1) {
-			newA = 1;
-			fadeIn = false;
-		} else if (newA < 0) {
-			newA = 0;
-			fadeIn = true;
-		}
-		pulseIndicator.color = new Color (pulseIndicator.color.r, pulseIndicator.color.g, pulseIndicator.color.b, newA);
+		SetPulserAlpha (pulseIndicator.color.a - (Time.deltaTime) / (LevelController.quarterPulse * 2));
 	}
+
+	public void ReceivePulse(object sender, PulseEventArgs pulseEvent) {
+		if (pulseEvent.pulseValue == pulseToggledAt) {
+			numPulses++;
+			if (numPulses == numPulsesPerToggle) {
+				SetPulserAlpha (1);
+				numPulses = 0;
+			}
+		}
+	}
+
+	void SetPulserAlpha(float newAlpha) {
+		pulseIndicator.color = new Color (pulseIndicator.color.r, pulseIndicator.color.g, pulseIndicator.color.b, newAlpha);
+	}
+
 }

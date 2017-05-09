@@ -16,8 +16,8 @@ public class LevelController : MonoBehaviour {
 	public static Color defaultColor;
 
 	public float debugPulse;
+	float startTime;
 	float timer;
-	List<float> pulseActivations;
 
 	public int pulsesPerRowDissapear;
 	int disappearPulses;
@@ -27,6 +27,7 @@ public class LevelController : MonoBehaviour {
 
 	public int debugDifficulty;
 
+	static List<float> pulseActivations;
 	public static event EventHandler<PulseEventArgs> pulsed;
 
 	void Awake() {
@@ -39,7 +40,8 @@ public class LevelController : MonoBehaviour {
 		levelDifficulty = (Difficulty)debugDifficulty;
 		quarterPulse = debugPulse;
 
-		pulseActivations = new List<float> { 0, 0 };
+		startTime = Time.time;
+		pulseActivations = new List<float> { debugPulse / 2, debugPulse };
 
 		LevelController.pulsed += DisappearRow;
 	}
@@ -47,20 +49,15 @@ public class LevelController : MonoBehaviour {
 	void OnDestroy() {
 		LevelController.pulsed -= DisappearRow;
 	}
-
-	void Start () {
-	}
 	
 	void Update () {
-		timer += Time.deltaTime;
-		if (timer % debugPulse < debugPulse / 2 && (timer - pulseActivations [0]) > debugPulse / 2) {
-			//print ("Half pulse: " + timer);
-			pulseActivations [0] = timer;
+		timer = Time.time - startTime;
+		if (timer > pulseActivations [0]) {
+			pulseActivations [0] += debugPulse / 2;
 			pulsed (null, new PulseEventArgs (PulseEventArgs.PulseValue.Half));
 		}
-		if (timer % (2*debugPulse) < debugPulse && (timer - pulseActivations [1]) > debugPulse) {
-			//print ("Full pulse: " + timer);
-			pulseActivations [1] = timer;
+		if (timer > pulseActivations [1]) {
+			pulseActivations [1] += debugPulse;
 			pulsed (null, new PulseEventArgs (PulseEventArgs.PulseValue.Full));
 		}
 	}
@@ -75,6 +72,10 @@ public class LevelController : MonoBehaviour {
 			rowIndex++;
 			disappearPulses = 0;
 		}
+	}
+
+	public static float GetPulseActivation(int index) {
+		return pulseActivations[index];
 	}
 }
 
