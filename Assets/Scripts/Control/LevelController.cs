@@ -20,12 +20,17 @@ public class LevelController : MonoBehaviour {
 	float timer;
 
 	public int pulsesPerRowDissapear;
+	public int pulsesPerClick;
 	int disappearPulses;
+	int clickPulses;
 
 	Transform track;
 	int rowIndex;
 
 	public int debugDifficulty;
+
+	private AudioSource source;
+	public AudioClip clickSound;
 
 	static List<float> pulseActivations;
 	public static event EventHandler<PulseEventArgs> pulsed;
@@ -37,17 +42,21 @@ public class LevelController : MonoBehaviour {
 		defaultColor = Color.white;
 		tileScale = 1;
 		disappearPulses = 0;
+		clickPulses = 0;
 		levelDifficulty = (Difficulty)debugDifficulty;
 		quarterPulse = debugPulse;
-
+	
+		source = GetComponent<AudioSource> ();
 		startTime = Time.time;
 		pulseActivations = new List<float> { debugPulse / 2, debugPulse };
 
 		LevelController.pulsed += DisappearRow;
+		LevelController.pulsed += PlayBeat;
 	}
 
 	void OnDestroy() {
 		LevelController.pulsed -= DisappearRow;
+		LevelController.pulsed -= PlayBeat;
 	}
 	
 	void Update () {
@@ -71,6 +80,15 @@ public class LevelController : MonoBehaviour {
 			child.gameObject.SetActive (false);
 			rowIndex++;
 			disappearPulses = 0;
+		}
+	}
+
+	void PlayBeat(object sender, PulseEventArgs pulseEvent) {
+		if (pulseEvent.pulseValue == PulseEventArgs.PulseValue.Full)
+			clickPulses++;
+		if (clickPulses >= pulsesPerClick) {
+			source.PlayOneShot (clickSound, 1F);
+			clickPulses = 0;
 		}
 	}
 
