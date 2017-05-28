@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System;
 
 public class LevelController : MonoBehaviour {
@@ -16,6 +17,7 @@ public class LevelController : MonoBehaviour {
 	public static Color defaultColor;
 
 	public float debugPulse;
+	public float levelTileScaling;
 	float startTime;
 	float timer;
 
@@ -35,16 +37,20 @@ public class LevelController : MonoBehaviour {
 	static List<float> pulseActivations;
 	public static event EventHandler<PulseEventArgs> pulsed;
 
+	GameObject barrier;
+
 	void Awake() {
 		track = GameObject.Find ("Track").transform;
 		rowIndex = 0;
 		timer = 0;
-		defaultColor = Color.white;
 		tileScale = 1;
 		disappearPulses = 0;
 		clickPulses = 0;
+
 		levelDifficulty = (Difficulty)debugDifficulty;
+		defaultColor = Color.white;
 		quarterPulse = debugPulse;
+		tileScale = levelTileScaling;
 	
 		source = GetComponent<AudioSource> ();
 		startTime = Time.time;
@@ -52,11 +58,18 @@ public class LevelController : MonoBehaviour {
 
 		LevelController.pulsed += DisappearRow;
 		LevelController.pulsed += PlayBeat;
+		FinishTile.finishedLevel += LoadNextLevel;
+
+		BarrierTile.barrierDeath += KillPlayer;
+		barrier = GameObject.Find ("Barrier");
 	}
 
 	void OnDestroy() {
 		LevelController.pulsed -= DisappearRow;
 		LevelController.pulsed -= PlayBeat;
+		FinishTile.finishedLevel -= LoadNextLevel;
+
+		BarrierTile.barrierDeath -= KillPlayer;
 	}
 	
 	void Update () {
@@ -76,10 +89,11 @@ public class LevelController : MonoBehaviour {
 			disappearPulses++;
 		if (disappearPulses >= pulsesPerRowDissapear) {
 			Transform child = track.GetChild (rowIndex);
-			PlayerController.KillPlayersAt (child.transform.position.y);
 			child.gameObject.SetActive (false);
 			rowIndex++;
 			disappearPulses = 0;
+
+			barrier.transform.Translate (new Vector3 (0, tileScale, 0));
 		}
 	}
 
@@ -94,6 +108,14 @@ public class LevelController : MonoBehaviour {
 
 	public static float GetPulseActivation(int index) {
 		return pulseActivations[index];
+	}
+
+	public void LoadNextLevel(object sender, EventArgs e) {
+		SceneManager.LoadScene ("TestScene");
+	}
+
+	public void KillPlayer(object sender, EventArgs e) {
+		SceneManager.LoadScene ("TestScene");
 	}
 }
 
