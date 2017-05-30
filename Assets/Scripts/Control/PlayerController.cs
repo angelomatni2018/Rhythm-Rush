@@ -25,10 +25,12 @@ public class PlayerController : MonoBehaviour {
 	float input_accuracy_threshold;
 	KeyCode last_input;
 	float last_input_time;
+	float last_received_input;
 	int current_scale;
 
-	private Vector3 target;
+	private Vector3[] targetPositions;
 	public Transform targetPrefab;
+	private Transform[] targets;
 
 	// Determines how close you have to input to the beat of the music
 	public float pulseThreshold;
@@ -37,10 +39,17 @@ public class PlayerController : MonoBehaviour {
 	float timer;
 
 	float stunnedUntil;
+	public Color stunnedColor;
+	Color normalColor;
 
 	public int numPulsesPerInput = 4;
 	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Half;
 
+	static KeyCode[] input_keys = new KeyCode[4]
+	{
+		KeyCode.W,KeyCode.S,KeyCode.D,KeyCode.A
+	};
+		
 	static Dictionary<KeyCode,Vector3> key_directions = new Dictionary<KeyCode, Vector3>
 	{
 		{KeyCode.W,new Vector3(0,1,0)},
@@ -49,9 +58,16 @@ public class PlayerController : MonoBehaviour {
 		{KeyCode.A,new Vector3(-1,0,0)}
 	};
 
-	void Start () {
-		targetPrefab = Instantiate(targetPrefab, target, Quaternion.identity);
+	void InitTargetHighlighting() {
+		targets = new Transform[4];
+		targetPositions = new Vector3[4];
+		for (int i = 0; i < 4; i++) {
+			targetPositions [i] = transform.position + current_scale * key_directions [input_keys[i]];
+			targets [i] = Instantiate (targetPrefab, targetPositions [i], Quaternion.identity);
+		}
+	}
 
+	void Start () {
 		input_buffer_threshold = LevelController.quarterPulse * 2 * pulseThreshold;
 		input_accuracy_threshold = LevelController.quarterPulse * pulseThreshold;
 		current_scale = 1;
@@ -60,7 +76,12 @@ public class PlayerController : MonoBehaviour {
 		timer = 0;
 		stunnedUntil = 0;
 		last_input_time = 0;
+		last_received_input = 0;
 		last_input = KeyCode.None;
+
+		normalColor = GetComponent<SpriteRenderer> ().color;
+
+		InitTargetHighlighting ();
 	}
 
 	internal void Awake () {
@@ -84,10 +105,10 @@ public class PlayerController : MonoBehaviour {
 
 	// Deprecated: Physics was causing clipping, so instead movement is now instantaneous
 	// See SnapToNextTile
-	void MoveToNextTile(int distance, float speed) {
+	/*void MoveToNextTile(int distance, float speed) {
 		rb2d.velocity = current_scale * key_directions [last_input] * speed;
 		target = transform.position + current_scale * distance * key_directions [last_input];
-	}
+	}*/
 
 	bool SnapToNextTile(int distance) {
 		bool stun = false;
@@ -102,14 +123,24 @@ public class PlayerController : MonoBehaviour {
 			}
 		}
 		//print (next_pos + "  " + stun);
-		rb2d.MovePosition (next_pos);
+		//rb2d.MovePosition (next_pos);
+		transform.position = next_pos;
 		return stun;
 	}
 
 	// Stunned until prevents inputs from being read until timer is past value
 	// Value is therefore last stunned beat + input accuracy so next input can be received next beat
 	void StunFor(int pulses) {
-		stunnedUntil = input_accuracy_threshold + LevelController.NextQuarterPulse () + (pulses - 1) * LevelController.quarterPulse;
+		stunnedUntil = LevelController.NextQuarterPulse () + (pulses - 1) * LevelController.quarterPulse - input_accuracy_threshold;
+		//print ("Stunned from : " + timer + "  And until: " + stunnedUntil);
+	}
+
+	void Update() {
+		if (timer > stunnedUntil) {
+			GetComponent<SpriteRenderer> ().color = normalColor;
+		} else {
+			GetComponent<SpriteRenderer> ().color = stunnedColor;
+		}
 	}
 
 	void FixedUpdate () {
@@ -127,13 +158,13 @@ public class PlayerController : MonoBehaviour {
 				}
 			}
 			if (last_input != KeyCode.None)
-				setTarget ();
+				SetTarget ();
 		} else {
 			//print (stunnedUntil + "  " + timer);
 		}
 	}
 
-	int getDistance() {
+	int GetDistance() {
 		return 1;
 	}
 
@@ -144,10 +175,9 @@ public class PlayerController : MonoBehaviour {
 	public void ReceivePulse(object sender, PulseEventArgs pulseEvent) {
 	}
 
-	private void setTarget() {
-		int distance = getDistance();
+	private void SetTarget() {
+		int distance = GetDistance();
 		speed = 2f * distance / (LevelController.quarterPulse);
-		//print (distance);
 
 		float accuracy = Mathf.Abs (LevelController.NextQuarterPulse() - last_input_time);
 		if (accuracy < input_accuracy_threshold || accuracy > LevelController.quarterPulse - input_accuracy_threshold) {
@@ -173,17 +203,19 @@ public class PlayerController : MonoBehaviour {
 			//print ("Wrong! " + accuracy + "  " + current_scale);
 		}
 
-		clipToGrid ();
-		drawTarget ();
+		ClipToGrid ();
+		UpdateTargetHighlighting ();
 		last_input = KeyCode.None;
 	}
 
-
-	private void drawTarget() {
-		targetPrefab.transform.localPosition = target;
+	void UpdateTargetHighlighting() {
+		for (int i = 0; i < 4; i++) {
+			targetPositions [i] = transform.position + current_scale * key_directions [input_keys[i]];
+			targets [i].position = targetPositions [i];
+		}
 	}
 
-	private void clipToGrid() {
+	private void ClipToGrid() {
 		transform.position = new Vector2(Mathf.Round (transform.position.x), Mathf.Round (transform.position.y));
 	}
 }
