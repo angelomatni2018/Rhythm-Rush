@@ -71,7 +71,11 @@ public class LevelController : MonoBehaviour {
 
 		BarrierTile.barrierDeath -= KillPlayer;
 	}
-	
+
+	public static float NextQuarterPulse() {
+		return pulseActivations [1];
+	}
+
 	void Update () {
 		timer = Time.time - startTime;
 		if (timer > pulseActivations [0]) {
@@ -104,10 +108,6 @@ public class LevelController : MonoBehaviour {
 			source.PlayOneShot (clickSound, 1F);
 			clickPulses = 0;
 		}
-	}
-
-	public static float GetPulseActivation(int index) {
-		return pulseActivations[index];
 	}
 
 	public void LoadNextLevel(object sender, EventArgs e) {

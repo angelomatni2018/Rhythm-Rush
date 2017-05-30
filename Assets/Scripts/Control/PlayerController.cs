@@ -4,32 +4,42 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
-	float lastPulse;
+	/// These comments can be removed after this is pushed to master branch:
+
+	// (DONE) Fix buffer threshold issue (Confirm fix)
+
+	// (DONE) Implement stun mechanic, apply when wrong input at lowest tier
+	// (DONE) Have it prevent input until x beats later
+
+	// (DONE) Cast points to next positions to confirm it is possible to go there.
+	// (DONE) If not, send player as far as possible and stun them
+
+	// Add UI to signify current tier movement
+	// Add highlighted targets to show next locations you'll mvoe to
 
 	public Rigidbody2D rb2d;
 	public float speed;
 	private Vector2 offset;
 
-	//enum Direction {n, s, e, w, none};
-	//private Direction dir;
-	//private Direction last_input;
 	float input_buffer_threshold;
 	float input_accuracy_threshold;
 	KeyCode last_input;
 	float last_input_time;
 	int current_scale;
 
-	private bool seekingInput = true;
-	private double threshold = 0.3;
 	private Vector3 target;
 	public Transform targetPrefab;
 
 	// Determines how close you have to input to the beat of the music
 	public float pulseThreshold;
 
+	float startTime;
+	float timer;
+
+	float stunnedUntil;
+
 	public int numPulsesPerInput = 4;
 	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Half;
-	int numPulses;
 
 	static Dictionary<KeyCode,Vector3> key_directions = new Dictionary<KeyCode, Vector3>
 	{
@@ -39,20 +49,21 @@ public class PlayerController : MonoBehaviour {
 		{KeyCode.A,new Vector3(-1,0,0)}
 	};
 
-	void Start ()
-	{
-		//last_input = Direction.none;
+	void Start () {
 		targetPrefab = Instantiate(targetPrefab, target, Quaternion.identity);
 
-		input_buffer_threshold = LevelController.quarterPulse / 4;
-		input_accuracy_threshold = LevelController.quarterPulse / 8;
-		last_input_time = Time.time;
-		last_input = KeyCode.None;
+		input_buffer_threshold = LevelController.quarterPulse * 2 * pulseThreshold;
+		input_accuracy_threshold = LevelController.quarterPulse * pulseThreshold;
 		current_scale = 1;
+
+		startTime = Time.time;
+		timer = 0;
+		stunnedUntil = 0;
+		last_input_time = 0;
+		last_input = KeyCode.None;
 	}
 
 	internal void Awake () {
-		numPulses = 0;
 		LevelController.pulsed += ReceivePulse;
 	}
 
@@ -69,46 +80,60 @@ public class PlayerController : MonoBehaviour {
 		//print (Vector3.Magnitude (target - transform.position));
 		//print (.05 * LevelController.tileScale);
 		return Vector3.Magnitude(target - transform.position) < .05 * LevelController.tileScale;
-/*
-		if (Mathf.Round (transform.position.x) == Mathf.Round (target [0]) &
-			Mathf.Round (transform.position.y) == Mathf.Round (target [1])) {
-			return true;
+	}
+
+	// Deprecated: Physics was causing clipping, so instead movement is now instantaneous
+	// See SnapToNextTile
+	void MoveToNextTile(int distance, float speed) {
+		rb2d.velocity = current_scale * key_directions [last_input] * speed;
+		target = transform.position + current_scale * distance * key_directions [last_input];
+	}
+
+	bool SnapToNextTile(int distance) {
+		bool stun = false;
+		Vector2 next_pos = (Vector2)transform.position;
+		for (int i = 1; i <= current_scale * distance; i++) {
+			next_pos = (Vector2)(transform.position + i * key_directions [last_input]);
+			//print (transform.position + "  " + next_pos + "  " + Physics2D.OverlapPoint (next_pos, LayerMask.GetMask(new string[] {"Barrier"})));
+			if (Physics2D.OverlapPoint (next_pos, LayerMask.GetMask(new string[] {"Barrier"})) != null) {
+				next_pos = (Vector2)(transform.position + (i - 1) * key_directions [last_input]);
+				stun = true;
+				break;
+			}
 		}
-*/
+		//print (next_pos + "  " + stun);
+		rb2d.MovePosition (next_pos);
+		return stun;
+	}
+
+	// Stunned until prevents inputs from being read until timer is past value
+	// Value is therefore last stunned beat + input accuracy so next input can be received next beat
+	void StunFor(int pulses) {
+		stunnedUntil = input_accuracy_threshold + LevelController.NextQuarterPulse () + (pulses - 1) * LevelController.quarterPulse;
 	}
 
 	void FixedUpdate () {
-		if (PlayerAtTilePos (target)) {
+		timer = Time.time - startTime;
+		/*if (PlayerAtTilePos (target)) {
 			rb2d.velocity = Vector3.zero;
-		}
-		if (Time.time - last_input_time > input_buffer_threshold) {
-			foreach (KeyValuePair<KeyCode,Vector3> pair in key_directions) {
-				if (Input.GetKeyDown (pair.Key)) {
-					last_input = pair.Key;
-					last_input_time = Time.time;
+		}*/
+		if (timer > stunnedUntil) {
+			if (timer - last_input_time > input_buffer_threshold) {
+				foreach (KeyValuePair<KeyCode,Vector3> pair in key_directions) {
+					if (Input.GetKeyDown (pair.Key)) {
+						last_input = pair.Key;
+						last_input_time = timer;
+					}
 				}
 			}
+			if (last_input != KeyCode.None)
+				setTarget ();
+		} else {
+			//print (stunnedUntil + "  " + timer);
 		}
-		/*
-		if (Input.GetKeyDown ("w")) {
-			last_input = Direction.n;
-		} else if (Input.GetKeyDown ("a")) {
-			last_input = Direction.w;
-		} else if (Input.GetKeyDown ("d")) {
-			last_input = Direction.e;
-		} else if (Input.GetKeyDown ("s")) {
-			last_input = Direction.s;
-		}
-		*/
-//		transform.Translate ((target - transform.position));
-//		rb2d.MovePosition (rb2d.position + offset);
 	}
 
-	float getDistance() {
-//		float num_tiles = (Mathf.Abs ((Time.time - lastPulse)) * 4);
-//		num_tiles -= (num_tiles % 1 - 1);
-//		float distance = num_tiles * LevelController.tileScale;
-//		return distance;
+	int getDistance() {
 		return 1;
 	}
 
@@ -117,60 +142,40 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	public void ReceivePulse(object sender, PulseEventArgs pulseEvent) {
-		if (pulseEvent.pulseValue == pulseToggledAt) {
-			numPulses++;
-			clipToGrid ();
-			if (last_input != KeyCode.None)
-				setTarget ();
-			//last_input = Direction.none;
-			if (numPulses == numPulsesPerInput) {
-				lastPulse = LevelController.GetPulseActivation((int)pulseToggledAt);
-				numPulses = 0;
-			}
-		}
 	}
 
 	private void setTarget() {
-		float distance = getDistance();
-		speed = 2 * distance / (LevelController.quarterPulse);
+		int distance = getDistance();
+		speed = 2f * distance / (LevelController.quarterPulse);
 		//print (distance);
 
-		float accuracy = Time.time - last_input_time;
-		if (accuracy > input_accuracy_threshold) {
-			print (accuracy);
-			rb2d.velocity = current_scale * key_directions [last_input] * speed;
-			target = transform.position + current_scale * distance * key_directions [last_input];
-			// Upgrade speed factor
-			current_scale = Mathf.Min(3,current_scale + 1);
+		float accuracy = Mathf.Abs (LevelController.NextQuarterPulse() - last_input_time);
+		if (accuracy < input_accuracy_threshold || accuracy > LevelController.quarterPulse - input_accuracy_threshold) {
+			//MoveToNextTile (distance, speed);
+			bool stun = SnapToNextTile(distance);
+			if (stun) {
+				//print ("Hit something! " + accuracy + "  " + current_scale);
+				StunFor (1);
+				current_scale = Mathf.Max (1, current_scale - 1);
+			} else {
+				//print ("Correct! " + accuracy + "  " + current_scale);
+				// Upgrade speed factor
+				current_scale = Mathf.Min (3, current_scale + 1);
+			}
 		} else {
 			// Downgrade speed factor
 			if (current_scale == 1) {
 				//Punish player
+				StunFor(1);
 			} else {
 				current_scale--;
 			}
+			//print ("Wrong! " + accuracy + "  " + current_scale);
 		}
 
+		clipToGrid ();
 		drawTarget ();
 		last_input = KeyCode.None;
-		/*
-		dir = last_input;
-		if (dir == Direction.n) {
-			target = new Vector3 (Mathf.Round(transform.position.x), Mathf.Round(transform.position.y + distance), 0);
-			rb2d.velocity = new Vector3 (0, speed, 0);
-		} else if (dir == Direction.s) {
-			target = new Vector3 (Mathf.Round(transform.position.x), Mathf.Round(transform.position.y - distance), 0);
-			rb2d.velocity = new Vector3 (0, -speed, 0);
-		} else if (dir == Direction.e) {
-			rb2d.velocity = new Vector3 (speed, 0, 0);
-			target = new Vector3 (Mathf.Round(transform.position.x + distance), Mathf.Round(transform.position.y), 0);
-		} else if (dir == Direction.w) {
-			rb2d.velocity = new Vector3 (-speed, 0, 0);
-			target = new Vector3 (Mathf.Round(transform.position.x - distance), Mathf.Round(transform.position.y), 0);
-		} else {
-			offset = new Vector3 (0, 0, 0);
-		}
-		*/
 	}
 
 
