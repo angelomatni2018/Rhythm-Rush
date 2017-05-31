@@ -3,14 +3,14 @@ using System.Collections;
 
 public class VanishingTile : Tile
 {
-	bool toggled;
+	bool isActive;
 	int togglePulses;
 	public Color enabledColor, disabledColor;
 
 	override protected void Start() {
 		base.Start ();
 
-		toggled = false;
+		isActive = false;
 		col = GetComponent<Collider2D> ();
 		sRend = GetComponent<SpriteRenderer> ();
 		togglePulses = 0;
@@ -20,7 +20,7 @@ public class VanishingTile : Tile
 		if (pulseEvent.pulseValue == pulseToggledAt) {
 			togglePulses++;
 			if (togglePulses >= numPulsesToToggle) {
-				toggled = !toggled;
+				isActive = !isActive;
 				UpdateTile ();
 				togglePulses = 0;
 			}
@@ -28,12 +28,17 @@ public class VanishingTile : Tile
 	}
 
 	void UpdateTile() {
-		if (toggled) {
+		if (isActive) {
 			sRend.color = enabledColor;
 		} else {
 			sRend.color = disabledColor;
 		}
-		col.enabled = toggled;
+		col.enabled = !isActive;
 	}
+
+	public override bool PlayerContinueMove() { 
+		return isActive;
+	}
+
 }
 

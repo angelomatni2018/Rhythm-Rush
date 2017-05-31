@@ -23,4 +23,8 @@ public class Tile : MonoBehaviour {
 	}
 
 	public virtual void ReceivePulse(object sender, PulseEventArgs pulseEvent) {}
+
+	public virtual void AffectPlayer(PlayerController pc) {}
+
+	public virtual bool PlayerContinueMove() { return true; }
 }

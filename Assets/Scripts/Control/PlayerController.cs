@@ -1,21 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class PlayerController : MonoBehaviour {
 
-	/// These comments can be removed after this is pushed to master branch:
-
-	// (DONE) Fix buffer threshold issue (Confirm fix)
-
-	// (DONE) Implement stun mechanic, apply when wrong input at lowest tier
-	// (DONE) Have it prevent input until x beats later
-
-	// (DONE) Cast points to next positions to confirm it is possible to go there.
-	// (DONE) If not, send player as far as possible and stun them
-
-	// Add UI to signify current tier movement
-	// Add highlighted targets to show next locations you'll mvoe to
+	public enum PlayerState { Dead, Stunned, Normal };
 
 	public Rigidbody2D rb2d;
 	public float speed;
@@ -109,15 +99,27 @@ public class PlayerController : MonoBehaviour {
 	}*/
 
 	bool SnapToNextTile(int distance) {
+
+		Func<int, Vector2> PosAt = i => (Vector2)(transform.position + i * key_directions [last_input]); 
+
 		bool stun = false;
 		Vector2 next_pos = (Vector2)transform.position;
 		for (int i = 1; i <= current_scale * distance; i++) {
-			next_pos = (Vector2)(transform.position + i * key_directions [last_input]);
+			next_pos = PosAt(i);
 			//print (transform.position + "  " + next_pos + "  " + Physics2D.OverlapPoint (next_pos, LayerMask.GetMask(new string[] {"Barrier"})));
-			if (Physics2D.OverlapPoint (next_pos, LayerMask.GetMask(new string[] {"Barrier"})) != null) {
-				next_pos = (Vector2)(transform.position + (i - 1) * key_directions [last_input]);
+			Collider2D barrier = Physics2D.OverlapPoint (next_pos, LayerMask.GetMask(new string[] {"Barrier"}));
+			if (barrier != null) {
+				next_pos = PosAt(i - 1);
 				stun = true;
 				break;
+			}
+			Collider2D tileCol = Physics2D.OverlapPoint (next_pos, LayerMask.GetMask(new string[] {"InteractiveTile"}));
+			if (tileCol != null) {
+				Tile tile = tileCol.GetComponent<Tile> ();
+				tile.AffectPlayer (this);
+				if (!tile.PlayerContinueMove ()) {
+					break;
+				}
 			}
 		}
 		//print (next_pos + "  " + stun);
