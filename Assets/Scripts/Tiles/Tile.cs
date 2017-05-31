@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour {
 
-	protected Collider2D playerCol;
+	protected Collider2D col;
 	protected SpriteRenderer sRend;
+
+	public bool startActive;
+	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Half;
+	public int numPulsesToToggle;
 
 	protected virtual void Start () {
 		LevelController.pulsed += ReceivePulse;
 
-		playerCol = GetComponent<Collider2D> ();
+		col = GetComponent<Collider2D> ();
 		sRend = GetComponent<SpriteRenderer> ();
 	}
 
@@ -19,4 +23,8 @@ public class Tile : MonoBehaviour {
 	}
 
 	public virtual void ReceivePulse(object sender, PulseEventArgs pulseEvent) {}
+
+	public virtual void AffectPlayer(PlayerController pc) {}
+
+	public virtual bool PlayerContinueMove() { return true; }
 }
