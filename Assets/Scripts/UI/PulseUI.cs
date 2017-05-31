@@ -34,7 +34,6 @@ public class PulseUI : MonoBehaviour {
 			numPulses++;
 			if (numPulses == numPulsesPerToggle) {
 //				SetPulserAlpha (1);
-				SetPulseDot (Color.green);
 				numPulses = 0;
 			}
 		}
@@ -42,9 +41,5 @@ public class PulseUI : MonoBehaviour {
 
 	void SetPulserAlpha(float newAlpha) {
 		pulseIndicator.color = new Color (pulseIndicator.color.r, pulseIndicator.color.g, pulseIndicator.color.b, newAlpha);
-	}
-
-	void SetPulseDot (Color newColor) {
-		pulseDot.color = Color.red;
 	}
 }	
