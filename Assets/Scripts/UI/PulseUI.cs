@@ -6,8 +6,8 @@ using UnityEngine.UI;
 public class PulseUI : MonoBehaviour {
 
 	Image pulseIndicator;
-	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Full;
-	public int numPulsesPerToggle = 4;
+	public PulseEventArgs.PulseValue pulseToggledAt;
+	public int numPulsesPerToggle;
 
 	int numPulses;
 
@@ -24,7 +24,7 @@ public class PulseUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		SetPulserAlpha (pulseIndicator.color.a - (Time.deltaTime) / (LevelController.quarterPulse * 2));
+		SetPulserAlpha (pulseIndicator.color.a - (Time.deltaTime / 2) / LevelController.quarterPulse);
 	}
 
 	public void ReceivePulse(object sender, PulseEventArgs pulseEvent) {

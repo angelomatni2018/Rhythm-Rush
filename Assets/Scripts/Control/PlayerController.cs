@@ -4,17 +4,52 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
-	float lastPulse;
+	/// These comments can be removed after this is pushed to master branch:
+
+	// (DONE) Fix buffer threshold issue (Confirm fix)
+
+	// (DONE) Implement stun mechanic, apply when wrong input at lowest tier
+	// (DONE) Have it prevent input until x beats later
+
+	// (DONE) Cast points to next positions to confirm it is possible to go there.
+	// (DONE) If not, send player as far as possible and stun them
+
+	// Add UI to signify current tier movement
+	// Add highlighted targets to show next locations you'll mvoe to
+
+	public Rigidbody2D rb2d;
+	public float speed;
+	private Vector2 offset;
+
+	float input_buffer_threshold;
+	float input_accuracy_threshold;
+	KeyCode last_input;
+	float last_input_time;
+	float last_received_input;
+	int current_scale;
+
+	private Vector3[] targetPositions;
+	public Transform targetPrefab;
+	private Transform[] targets;
 
 	// Determines how close you have to input to the beat of the music
-	public float[] pulseThreshold;
+	public float pulseThreshold;
+
+	float startTime;
+	float timer;
+
+	float stunnedUntil;
+	public Color stunnedColor;
+	Color normalColor;
 
 	public int numPulsesPerInput = 4;
-	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Full;
-	int numPulses;
+	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Half;
 
-	public static List<Player> players;
-
+	static KeyCode[] input_keys = new KeyCode[4]
+	{
+		KeyCode.W,KeyCode.S,KeyCode.D,KeyCode.A
+	};
+		
 	static Dictionary<KeyCode,Vector3> key_directions = new Dictionary<KeyCode, Vector3>
 	{
 		{KeyCode.W,new Vector3(0,1,0)},
@@ -23,14 +58,33 @@ public class PlayerController : MonoBehaviour {
 		{KeyCode.A,new Vector3(-1,0,0)}
 	};
 
-	internal void Awake () {
-		Transform playerHolder = GameObject.Find ("Players").transform;
-		players = new List<Player> ();
-		for (int i = 0; i < playerHolder.childCount; i++) {
-			players.Add(playerHolder.GetChild (i).GetComponent<Player> ());
+	void InitTargetHighlighting() {
+		targets = new Transform[4];
+		targetPositions = new Vector3[4];
+		for (int i = 0; i < 4; i++) {
+			targetPositions [i] = transform.position + current_scale * key_directions [input_keys[i]];
+			targets [i] = Instantiate (targetPrefab, targetPositions [i], Quaternion.identity);
 		}
+	}
 
-		numPulses = 0;
+	void Start () {
+		input_buffer_threshold = LevelController.quarterPulse * 2 * pulseThreshold;
+		input_accuracy_threshold = LevelController.quarterPulse * pulseThreshold;
+		current_scale = 1;
+
+		startTime = Time.time;
+		timer = 0;
+		stunnedUntil = 0;
+		last_input_time = 0;
+		last_received_input = 0;
+		last_input = KeyCode.None;
+
+		normalColor = GetComponent<SpriteRenderer> ().color;
+
+		InitTargetHighlighting ();
+	}
+
+	internal void Awake () {
 		LevelController.pulsed += ReceivePulse;
 	}
 
@@ -38,40 +92,130 @@ public class PlayerController : MonoBehaviour {
 		LevelController.pulsed -= ReceivePulse;
 	}
 
-	void Update () {
-		Vector3 move = new Vector3();
-		foreach (KeyValuePair<KeyCode,Vector3> pair in key_directions) {
-			if (Input.GetKeyDown (pair.Key)) {
-				move = ScaledMove(pair.Value);
+	void OnCollisionEnter(Collision collision) {
+		//if (collision.collider.tag == "Wall")
+		//	last_input = Direction.none;
+	}
+
+	bool PlayerAtTilePos(Vector3 target) {
+		//print (Vector3.Magnitude (target - transform.position));
+		//print (.05 * LevelController.tileScale);
+		return Vector3.Magnitude(target - transform.position) < .05 * LevelController.tileScale;
+	}
+
+	// Deprecated: Physics was causing clipping, so instead movement is now instantaneous
+	// See SnapToNextTile
+	/*void MoveToNextTile(int distance, float speed) {
+		rb2d.velocity = current_scale * key_directions [last_input] * speed;
+		target = transform.position + current_scale * distance * key_directions [last_input];
+	}*/
+
+	bool SnapToNextTile(int distance) {
+		bool stun = false;
+		Vector2 next_pos = (Vector2)transform.position;
+		for (int i = 1; i <= current_scale * distance; i++) {
+			next_pos = (Vector2)(transform.position + i * key_directions [last_input]);
+			//print (transform.position + "  " + next_pos + "  " + Physics2D.OverlapPoint (next_pos, LayerMask.GetMask(new string[] {"Barrier"})));
+			if (Physics2D.OverlapPoint (next_pos, LayerMask.GetMask(new string[] {"Barrier"})) != null) {
+				next_pos = (Vector2)(transform.position + (i - 1) * key_directions [last_input]);
+				stun = true;
+				break;
 			}
 		}
-		for (int i = 0; i < players.Count; i++) {
-			players [i].transform.Translate (move);
+		//print (next_pos + "  " + stun);
+		//rb2d.MovePosition (next_pos);
+		transform.position = next_pos;
+		return stun;
+	}
+
+	// Stunned until prevents inputs from being read until timer is past value
+	// Value is therefore last stunned beat + input accuracy so next input can be received next beat
+	void StunFor(int pulses) {
+		stunnedUntil = LevelController.NextQuarterPulse () + (pulses - 1) * LevelController.quarterPulse - input_accuracy_threshold;
+		//print ("Stunned from : " + timer + "  And until: " + stunnedUntil);
+	}
+
+	void Update() {
+		if (timer > stunnedUntil) {
+			GetComponent<SpriteRenderer> ().color = normalColor;
+		} else {
+			GetComponent<SpriteRenderer> ().color = stunnedColor;
 		}
 	}
 
-	Vector3 ScaledMove(Vector3 dir) {
-		Vector3 maxMove = dir * LevelController.tileScale;
-		//print (-(Time.time - lastPulse) * pulseThreshold [(int)LevelController.levelDifficulty]);
-		//float modifier = Mathf.Exp (-(Time.time - lastPulse) * pulseThreshold[(int)LevelController.levelDifficulty]);
-		float modifier = 1;
-		return modifier * maxMove;
+	void FixedUpdate () {
+		timer = Time.time - startTime;
+		/*if (PlayerAtTilePos (target)) {
+			rb2d.velocity = Vector3.zero;
+		}*/
+		if (timer > stunnedUntil) {
+			if (timer - last_input_time > input_buffer_threshold) {
+				foreach (KeyValuePair<KeyCode,Vector3> pair in key_directions) {
+					if (Input.GetKeyDown (pair.Key)) {
+						last_input = pair.Key;
+						last_input_time = timer;
+					}
+				}
+			}
+			if (last_input != KeyCode.None)
+				SetTarget ();
+		} else {
+			//print (stunnedUntil + "  " + timer);
+		}
 	}
 
-	public static void KillPlayersAt(float height) {
-		for (int i = 0; i < players.Count; i++) {
-			if (players [i].transform.position.y - height < .001f)
-				players [i].Kill ();
-		}
+	int GetDistance() {
+		return 1;
+	}
+
+	public void KillPlayersAt(float height) {
+		GameObject.Destroy (gameObject);
 	}
 
 	public void ReceivePulse(object sender, PulseEventArgs pulseEvent) {
-		if (pulseEvent.pulseValue == pulseToggledAt) {
-			numPulses++;
-			if (numPulses == numPulsesPerInput) {
-				lastPulse = LevelController.GetPulseActivation((int)pulseToggledAt);
-				numPulses = 0;
+	}
+
+	private void SetTarget() {
+		int distance = GetDistance();
+		speed = 2f * distance / (LevelController.quarterPulse);
+
+		float accuracy = Mathf.Abs (LevelController.NextQuarterPulse() - last_input_time);
+		if (accuracy < input_accuracy_threshold || accuracy > LevelController.quarterPulse - input_accuracy_threshold) {
+			//MoveToNextTile (distance, speed);
+			bool stun = SnapToNextTile(distance);
+			if (stun) {
+				//print ("Hit something! " + accuracy + "  " + current_scale);
+				StunFor (1);
+				current_scale = Mathf.Max (1, current_scale - 1);
+			} else {
+				//print ("Correct! " + accuracy + "  " + current_scale);
+				// Upgrade speed factor
+				current_scale = Mathf.Min (3, current_scale + 1);
 			}
+		} else {
+			// Downgrade speed factor
+			if (current_scale == 1) {
+				//Punish player
+				StunFor(1);
+			} else {
+				current_scale--;
+			}
+			//print ("Wrong! " + accuracy + "  " + current_scale);
 		}
+
+		ClipToGrid ();
+		UpdateTargetHighlighting ();
+		last_input = KeyCode.None;
+	}
+
+	void UpdateTargetHighlighting() {
+		for (int i = 0; i < 4; i++) {
+			targetPositions [i] = transform.position + current_scale * key_directions [input_keys[i]];
+			targets [i].position = targetPositions [i];
+		}
+	}
+
+	private void ClipToGrid() {
+		transform.position = new Vector2(Mathf.Round (transform.position.x), Mathf.Round (transform.position.y));
 	}
 }
