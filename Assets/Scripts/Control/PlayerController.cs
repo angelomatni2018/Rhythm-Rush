@@ -25,7 +25,6 @@ public class PlayerController : MonoBehaviour {
 	float input_accuracy_threshold;
 	KeyCode last_input;
 	float last_input_time;
-	float last_received_input;
 	int current_scale;
 
 	private Vector3[] targetPositions;
@@ -76,7 +75,6 @@ public class PlayerController : MonoBehaviour {
 		timer = 0;
 		stunnedUntil = 0;
 		last_input_time = 0;
-		last_received_input = 0;
 		last_input = KeyCode.None;
 
 		normalColor = GetComponent<SpriteRenderer> ().color;
