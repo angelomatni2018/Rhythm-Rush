@@ -75,7 +75,7 @@ public class PlayerController : MonoBehaviour {
 //		num_tiles -= (num_tiles % 1 - 1);
 //		float distance = num_tiles * LevelController.tileScale;
 //		return distance;
-		return 3;
+		return 2;
 	}
 
 	public static void KillPlayersAt(float height) {
