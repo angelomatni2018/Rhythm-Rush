@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour {
 
 	public enum PlayerState { Dead, Stunned, Normal };
 
+	PlayerState playerState = PlayerState.Normal;
+
 	public Rigidbody2D rb2d;
 	public float speed;
 	private Vector2 offset;
@@ -128,18 +130,18 @@ public class PlayerController : MonoBehaviour {
 		return stun;
 	}
 
-	// Stunned until prevents inputs from being read until timer is past value
-	// Value is therefore last stunned beat + input accuracy so next input can be received next beat
-	void StunFor(int pulses) {
-		stunnedUntil = LevelController.NextQuarterPulse () + (pulses - 1) * LevelController.quarterPulse - input_accuracy_threshold;
-		//print ("Stunned from : " + timer + "  And until: " + stunnedUntil);
-	}
-
 	void Update() {
-		if (timer > stunnedUntil) {
-			GetComponent<SpriteRenderer> ().color = normalColor;
-		} else {
-			GetComponent<SpriteRenderer> ().color = stunnedColor;
+		switch (playerState) {
+		case PlayerState.Dead:
+			break;
+		case PlayerState.Normal:
+			break;
+		case PlayerState.Stunned:
+			if (timer > stunnedUntil) {
+				GetComponent<SpriteRenderer> ().color = normalColor;
+				playerState = PlayerState.Normal;
+			}
+			break;
 		}
 	}
 
@@ -168,10 +170,6 @@ public class PlayerController : MonoBehaviour {
 		return 1;
 	}
 
-	public void KillPlayersAt(float height) {
-		GameObject.Destroy (gameObject);
-	}
-
 	public void ReceivePulse(object sender, PulseEventArgs pulseEvent) {
 	}
 
@@ -185,7 +183,7 @@ public class PlayerController : MonoBehaviour {
 			bool stun = SnapToNextTile(distance);
 			if (stun) {
 				//print ("Hit something! " + accuracy + "  " + current_scale);
-				StunFor (1);
+				StunPlayer(1);
 				current_scale = Mathf.Max (1, current_scale - 1);
 			} else {
 				//print ("Correct! " + accuracy + "  " + current_scale);
@@ -196,7 +194,7 @@ public class PlayerController : MonoBehaviour {
 			// Downgrade speed factor
 			if (current_scale == 1) {
 				//Punish player
-				StunFor(1);
+				StunPlayer(1);
 			} else {
 				current_scale--;
 			}
@@ -217,5 +215,17 @@ public class PlayerController : MonoBehaviour {
 
 	private void ClipToGrid() {
 		transform.position = new Vector2(Mathf.Round (transform.position.x), Mathf.Round (transform.position.y));
+	}
+
+	public void KillPlayer() {
+		playerState = PlayerState.Dead;
+	}
+
+	// Stunned until prevents inputs from being read until timer is past value
+	// Value is therefore last stunned beat + input accuracy so next input can be received next beat
+	public void StunPlayer(int pulses) {
+		stunnedUntil = LevelController.NextQuarterPulse () + (pulses - 1) * LevelController.quarterPulse - input_accuracy_threshold;
+		playerState = PlayerState.Stunned;
+		GetComponent<SpriteRenderer> ().color = stunnedColor;
 	}
 }

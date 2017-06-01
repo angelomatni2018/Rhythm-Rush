@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class VanishingTile : Tile
+public class VanishingTile : BarrierTile
 {
 	bool isActive;
 	int togglePulses;
@@ -35,6 +35,8 @@ public class VanishingTile : Tile
 		}
 		col.enabled = !isActive;
 	}
+
+	public override void AffectPlayer(PlayerController pc) {}
 
 	public override bool PlayerContinueMove() { 
 		return isActive;
