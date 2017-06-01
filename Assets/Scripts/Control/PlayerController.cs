@@ -228,4 +228,8 @@ public class PlayerController : MonoBehaviour {
 		playerState = PlayerState.Stunned;
 		GetComponent<SpriteRenderer> ().color = stunnedColor;
 	}
+
+	public int get_scale() {
+		return current_scale;
+	}
 }
