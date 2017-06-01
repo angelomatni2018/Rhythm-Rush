@@ -9,6 +9,7 @@ public class PulseUI : MonoBehaviour {
 	public Image pulseDot;
 	public PulseEventArgs.PulseValue pulseToggledAt;
 	public int numPulsesPerToggle;
+	public Text scaleText;
 
 	int numPulses;
 
@@ -27,6 +28,9 @@ public class PulseUI : MonoBehaviour {
 	void Update () {
 //		SetPulserAlpha (pulseIndicator.color.a - (Time.deltaTime / 2) / LevelController.quarterPulse);
 		pulseIndicator.transform.Rotate (0,0, (360 / LevelController.quarterPulse)*Time.deltaTime);
+		PlayerController player = GameObject.FindObjectOfType<PlayerController> ();
+		string text = player.get_scale ().ToString ();
+		scaleText.text = text;
 	}
 
 	public void ReceivePulse(object sender, PulseEventArgs pulseEvent) {
