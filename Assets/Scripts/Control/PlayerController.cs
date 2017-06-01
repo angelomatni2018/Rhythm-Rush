@@ -5,7 +5,7 @@ using System;
 
 public class PlayerController : MonoBehaviour {
 
-	public enum PlayerState { Dead, Stunned, Normal };
+	public enum PlayerState { Dead, Stunned, Normal, InputColored };
 
 	PlayerState playerState = PlayerState.Normal;
 
@@ -32,6 +32,9 @@ public class PlayerController : MonoBehaviour {
 	float stunnedUntil;
 	public Color stunnedColor;
 	Color normalColor;
+
+	public Color correctInputColor, wrongInputColor;
+	float displayInputColorUntil;
 
 	public int numPulsesPerInput = 4;
 	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Half;
@@ -142,6 +145,12 @@ public class PlayerController : MonoBehaviour {
 				playerState = PlayerState.Normal;
 			}
 			break;
+		case PlayerState.InputColored:
+			if (timer > displayInputColorUntil) {
+				GetComponent<SpriteRenderer> ().color = normalColor;
+				playerState = PlayerState.Normal;
+			}
+			break;
 		}
 	}
 
@@ -179,6 +188,7 @@ public class PlayerController : MonoBehaviour {
 
 		float accuracy = Mathf.Abs (LevelController.NextQuarterPulse() - last_input_time);
 		if (accuracy < input_accuracy_threshold || accuracy > LevelController.quarterPulse - input_accuracy_threshold) {
+			FlashCorrectInputColor (true);
 			//MoveToNextTile (distance, speed);
 			bool stun = SnapToNextTile(distance);
 			if (stun) {
@@ -191,6 +201,7 @@ public class PlayerController : MonoBehaviour {
 				current_scale = Mathf.Min (3, current_scale + 1);
 			}
 		} else {
+			FlashCorrectInputColor (false);
 			// Downgrade speed factor
 			if (current_scale == 1) {
 				//Punish player
@@ -211,6 +222,17 @@ public class PlayerController : MonoBehaviour {
 			targetPositions [i] = transform.position + current_scale * key_directions [input_keys[i]];
 			targets [i].position = targetPositions [i];
 		}
+	}
+
+	void FlashCorrectInputColor (bool correct) {
+		displayInputColorUntil = timer + LevelController.quarterPulse / 8;
+		playerState = PlayerState.InputColored;
+		if (correct) {
+			GetComponent<SpriteRenderer> ().color = correctInputColor;
+		} else {
+			GetComponent<SpriteRenderer> ().color = wrongInputColor;
+		}
+
 	}
 
 	private void ClipToGrid() {
