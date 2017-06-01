@@ -11,6 +11,7 @@ public class LevelController : MonoBehaviour {
 		Normal,
 		Hard
 	};
+	public static LevelController currentLevel;
 	public static Difficulty levelDifficulty;
 	public static float quarterPulse;
 	public static float tileScale;
@@ -40,6 +41,8 @@ public class LevelController : MonoBehaviour {
 	GameObject barrier;
 
 	void Awake() {
+		currentLevel = this;
+
 		track = GameObject.Find ("Track").transform;
 		rowIndex = 0;
 		timer = 0;
@@ -61,7 +64,7 @@ public class LevelController : MonoBehaviour {
 		FinishTile.finishedLevel += LoadNextLevel;
 
 		BarrierTile.barrierDeath += KillPlayer;
-		barrier = GameObject.Find ("Barrier");
+		barrier = GameObject.Find ("BarrierCollider");
 	}
 
 	void OnDestroy() {
@@ -88,19 +91,28 @@ public class LevelController : MonoBehaviour {
 		}
 	}
 
+	void DisappearCurrentRow() {
+		Transform child = track.GetChild (rowIndex);
+		child.gameObject.SetActive (false);
+		barrier.transform.Translate (new Vector3 (0, tileScale, 0));
+		rowIndex++;
+	}
+
+	public void DisappearRowsTo(int index) {
+		while (rowIndex < index) {
+			DisappearCurrentRow ();
+		}
+	}
+
 	void DisappearRow(object sender, PulseEventArgs pulseEvent) {
 		if (pulseEvent.pulseValue == PulseEventArgs.PulseValue.Full)
 			disappearPulses++;
 		if (disappearPulses >= pulsesPerRowDissapear) {
-			Transform child = track.GetChild (rowIndex);
-			child.gameObject.SetActive (false);
-			rowIndex++;
+			DisappearCurrentRow ();
 			disappearPulses = 0;
-
-			barrier.transform.Translate (new Vector3 (0, tileScale, 0));
 		}
 	}
-
+		
 	void PlayBeat(object sender, PulseEventArgs pulseEvent) {
 		if (pulseEvent.pulseValue == PulseEventArgs.PulseValue.Full)
 			clickPulses++;

@@ -7,7 +7,9 @@ public class BarrierTile : Tile
 	public static event EventHandler<EventArgs> barrierDeath;
 
 	void OnTriggerEnter2D(Collider2D other) {
-		barrierDeath(null, new EventArgs());
+		if (other.GetComponent<PlayerController> () != null) {
+			barrierDeath (null, new EventArgs ());
+		}
 	}
 }
 
