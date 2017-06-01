@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public static class GameController
 {
-	public static string MainMenuScene = "MainMenu";
+	public static string MainMenuScene = "MainMenuLevel";
 
 	static List<string> level_names = new List<string>() {
 		"TestScene",
