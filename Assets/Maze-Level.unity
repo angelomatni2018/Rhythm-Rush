@@ -1282,6 +1282,7 @@ MonoBehaviour:
   pulseDot: {fileID: 0}
   pulseToggledAt: 1
   numPulsesPerToggle: 1
+  scaleText: {fileID: 0}
 --- !u!4 &144801685 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4048685202422786, guid: 23af9d7022d289f44bf038ebfeb7031b,
@@ -2267,8 +2268,8 @@ Transform:
   - {fileID: 1682721087}
   - {fileID: 994804671}
   - {fileID: 1486952965}
-  - {fileID: 1631042417}
   - {fileID: 1939474961}
+  - {fileID: 1631042417}
   m_Father: {fileID: 783483917}
   m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3935,10 +3936,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1457102219}
-  - {fileID: 982092404}
   - {fileID: 518029706}
   - {fileID: 129463685}
   - {fileID: 1272419609}
+  - {fileID: 982092404}
   - {fileID: 2020691432}
   m_Father: {fileID: 783483917}
   m_RootOrder: 24
@@ -4988,10 +4989,10 @@ Transform:
   m_Children:
   - {fileID: 324319306}
   - {fileID: 250057606}
+  - {fileID: 990112958}
   - {fileID: 117154016}
   - {fileID: 1611678897}
   - {fileID: 1174718825}
-  - {fileID: 990112958}
   - {fileID: 254881207}
   - {fileID: 1610958400}
   - {fileID: 88292350}
@@ -6262,7 +6263,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.875, g: 0.6755515, b: 0.6755515, a: 0}
+  m_BackGroundColor: {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -6443,9 +6444,9 @@ Transform:
   - {fileID: 1982234701}
   - {fileID: 462389915}
   - {fileID: 1932787885}
-  - {fileID: 766116774}
-  - {fileID: 1606843779}
   - {fileID: 1512186541}
+  - {fileID: 1606843779}
+  - {fileID: 766116774}
   m_Father: {fileID: 783483917}
   m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6902,8 +6903,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 145916250}
   - {fileID: 225954882}
+  - {fileID: 145916250}
   - {fileID: 260759542}
   m_Father: {fileID: 783483917}
   m_RootOrder: 28
@@ -12162,8 +12163,8 @@ Transform:
   - {fileID: 1797367177}
   - {fileID: 1592829723}
   - {fileID: 89810331}
-  - {fileID: 449765883}
   - {fileID: 468199341}
+  - {fileID: 449765883}
   - {fileID: 1389817509}
   - {fileID: 1943171219}
   - {fileID: 1925873146}
@@ -12504,8 +12505,8 @@ Transform:
   - {fileID: 384993149}
   - {fileID: 393218516}
   - {fileID: 1435944910}
-  - {fileID: 1645661913}
   - {fileID: 526142997}
+  - {fileID: 1645661913}
   - {fileID: 694857244}
   m_Father: {fileID: 783483917}
   m_RootOrder: 21

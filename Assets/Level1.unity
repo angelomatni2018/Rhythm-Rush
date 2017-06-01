@@ -6096,7 +6096,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.875, g: 0.6755515, b: 0.6755515, a: 0}
+  m_BackGroundColor: {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -14197,8 +14197,8 @@ Transform:
   - {fileID: 229422351}
   - {fileID: 310233000}
   - {fileID: 396133327}
-  - {fileID: 876104658}
   - {fileID: 1547202249}
+  - {fileID: 876104658}
   m_Father: {fileID: 783483917}
   m_RootOrder: 25
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
