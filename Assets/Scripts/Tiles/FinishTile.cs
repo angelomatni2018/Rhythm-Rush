@@ -7,7 +7,8 @@ public class FinishTile : Tile
 	public static event EventHandler<EventArgs> finishedLevel;
 
 	void OnTriggerEnter2D(Collider2D other) {
-		finishedLevel(null, new EventArgs());
+		if (other.GetComponent<PlayerController>() != null)
+			finishedLevel(null, new EventArgs());
 	}
 
 }
