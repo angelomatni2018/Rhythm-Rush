@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviour {
 	public Color stunnedColor;
 	Color normalColor;
 
+	Color targetHighlightColor;
+
 	public int numPulsesPerInput = 4;
 	public PulseEventArgs.PulseValue pulseToggledAt = PulseEventArgs.PulseValue.Half;
 
@@ -56,6 +58,7 @@ public class PlayerController : MonoBehaviour {
 			targetPositions [i] = transform.position + current_scale * key_directions [input_keys[i]];
 			targets [i] = Instantiate (targetPrefab, targetPositions [i], Quaternion.identity);
 		}
+		targetHighlightColor = targets [0].GetComponent<SpriteRenderer> ().color;
 	}
 
 	void Start () {
@@ -143,6 +146,7 @@ public class PlayerController : MonoBehaviour {
 			}
 			break;
 		}
+		OscillateTargetHighlightings ();
 	}
 
 	void FixedUpdate () {
@@ -204,6 +208,17 @@ public class PlayerController : MonoBehaviour {
 		ClipToGrid ();
 		UpdateTargetHighlighting ();
 		last_input = KeyCode.None;
+	}
+
+	void OscillateTargetHighlightings() {
+		float amplitude = .10f;
+		float period = LevelController.quarterPulse / 1.5f;
+		float offset = Mathf.Sin(2 * Mathf.PI * (timer % period) / period);
+		float colorAmt = amplitude * offset;
+		Color newC = targetHighlightColor + new Color (colorAmt, colorAmt, colorAmt, 0);
+		for (int i = 0; i < 4; i++) {
+			targets [i].GetComponent<SpriteRenderer> ().color = newC;
+		}
 	}
 
 	void UpdateTargetHighlighting() {
