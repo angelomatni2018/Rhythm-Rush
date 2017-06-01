@@ -813,6 +813,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9d627cf4dde52744864e1dcd07cc7a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pulseDot: {fileID: 0}
   pulseToggledAt: 1
   numPulsesPerToggle: 1
 --- !u!4 &144675098 stripped
@@ -4506,6 +4507,7 @@ Prefab:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
+    - {fileID: 61295490582716538, guid: f67add1ab88094007b35bbae82877602, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: f67add1ab88094007b35bbae82877602, type: 2}
   m_IsPrefabParent: 0
 --- !u!4 &853034693 stripped
