@@ -111,11 +111,14 @@ public class LevelController : MonoBehaviour {
 	}
 
 	public void LoadNextLevel(object sender, EventArgs e) {
-		SceneManager.LoadScene ("TestScene");
+		string sceneName = SceneManager.GetActiveScene ().name;
+		SceneManager.LoadScene (GameController.GetNextSceneName(sceneName));
 	}
 
 	public void KillPlayer(object sender, EventArgs e) {
-		SceneManager.LoadScene ("TestScene");
+		//string sceneName = SceneManager.GetActiveScene ().name;
+		//SceneManager.LoadScene (sceneName);
+		SceneManager.LoadScene (GameController.MainMenuScene);
 	}
 }
 
