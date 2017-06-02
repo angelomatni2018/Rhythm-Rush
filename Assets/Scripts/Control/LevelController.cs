@@ -94,9 +94,12 @@ public class LevelController : MonoBehaviour {
 
 	void DisappearCurrentRow() {
 		Transform child = track.GetChild (rowIndex);
-		child.gameObject.SetActive (false);
-		barrier.transform.Translate (new Vector3 (0, tileScale, 0));
-		rowIndex++;
+		if (child.gameObject.activeInHierarchy) {
+			child.gameObject.SetActive (false);
+			barrier.transform.Translate (new Vector3 (0, tileScale, 0));
+//			barrier.transform.position = new Vector3 (0, child.transform.position.y - 1 , 0);
+			rowIndex++;
+		}
 	}
 
 	public void DisappearRowsTo(int index) {

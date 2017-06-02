@@ -9,8 +9,7 @@ public static class GameController
 	static List<string> level_names = new List<string>() {
 		"Level1",
 		"Level2",
-		"Maize-Level"
-//		"Level3"
+		"Maze-Level"
 	};
 
 	public static string GetNextSceneName(string currentName) {
