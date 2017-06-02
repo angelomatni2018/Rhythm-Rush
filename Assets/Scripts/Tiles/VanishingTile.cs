@@ -34,7 +34,7 @@ public class VanishingTile : BarrierTile
 		} else {
 			sRend.color = disabledColor;
 		}
-		col.enabled = isActive;
+//		col.enabled = isActive;
 	}
 
 	public override void AffectPlayer(PlayerController pc) {}
