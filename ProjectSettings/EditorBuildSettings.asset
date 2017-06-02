@@ -11,6 +11,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Level1.unity
     guid: d346a6805a50244bc85bcfeb42d047c5
-  - enabled: 1
-    path: Assets/MainMenu.unity
+  - enabled: 0
+    path: 
     guid: 70630edfda30dc2469580bdff4435c3e
+  - enabled: 1
+    path: Assets/Level2.unity
+    guid: 27c308586954a4fb58485af7b9426851
+  - enabled: 1
+    path: Assets/Maze-Level.unity
+    guid: 5c55d4f9cc7144b38a9e1fb857541f4b

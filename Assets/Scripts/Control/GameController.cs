@@ -7,10 +7,10 @@ public static class GameController
 	public static string MainMenuScene = "MainMenuLevel";
 
 	static List<string> level_names = new List<string>() {
-		"TestScene",
 		"Level1",
 		"Level2",
-		"Level3"
+		"Maize-Level"
+//		"Level3"
 	};
 
 	public static string GetNextSceneName(string currentName) {

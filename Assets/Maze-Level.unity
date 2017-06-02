@@ -14929,9 +14929,9 @@ MonoBehaviour:
   debugPulse: 1
   levelTileScaling: 1
   pulsesPerRowDissapear: 2
-  pulsesPerClick: 1
+  pulsesPerClick: 16
   debugDifficulty: 0
-  clickSound: {fileID: 8300000, guid: 07db313701a764d9d8c8945c9bd62f68, type: 3}
+  clickSound: {fileID: 8300000, guid: c6e10124646c84f40968198024a4df15, type: 3}
 --- !u!4 &2020708565
 Transform:
   m_ObjectHideFlags: 0
