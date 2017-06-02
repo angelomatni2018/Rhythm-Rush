@@ -11,6 +11,7 @@ public class LevelController : MonoBehaviour {
 		Normal,
 		Hard
 	};
+	private bool first_click = false;
 	public static LevelController currentLevel;
 	public static Difficulty levelDifficulty;
 	public static float quarterPulse;
@@ -114,9 +115,14 @@ public class LevelController : MonoBehaviour {
 	}
 		
 	void PlayBeat(object sender, PulseEventArgs pulseEvent) {
-		if (pulseEvent.pulseValue == PulseEventArgs.PulseValue.Full)
+		if (pulseEvent.pulseValue == PulseEventArgs.PulseValue.Full) {
 			clickPulses++;
-		if (clickPulses >= pulsesPerClick) {
+			if (!first_click) {
+				source.PlayOneShot (clickSound, 1F);
+				first_click = true;
+			}
+		}
+		if (clickPulses == pulsesPerClick) {
 			source.PlayOneShot (clickSound, 1F);
 			clickPulses = 0;
 		}
