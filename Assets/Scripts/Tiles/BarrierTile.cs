@@ -11,5 +11,9 @@ public class BarrierTile : Tile
 			barrierDeath (null, new EventArgs ());
 		}
 	}
+
+	public static void FireDeath() {
+		barrierDeath (null, new EventArgs ());
+	}
 }
 

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class VanishingTile : BarrierTile
 {
@@ -33,7 +34,7 @@ public class VanishingTile : BarrierTile
 		} else {
 			sRend.color = disabledColor;
 		}
-		col.enabled = !isActive;
+		col.enabled = isActive;
 	}
 
 	public override void AffectPlayer(PlayerController pc) {}
@@ -42,5 +43,10 @@ public class VanishingTile : BarrierTile
 		return isActive;
 	}
 
+	void OnTriggerEnter2D(Collider2D other) {
+		if (other.GetComponent<PlayerController> () != null) {
+			BarrierTile.FireDeath ();
+		}
+	}
 }
 
