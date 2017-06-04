@@ -29,12 +29,12 @@ public class VanishingTile : BarrierTile
 	}
 
 	void UpdateTile() {
-		if (isActive) {
-			sRend.color = enabledColor;
-		} else {
-			sRend.color = disabledColor;
-		}
-		col.enabled = isActive;
+//		if (isActive) {
+//			sRend.color = enabledColor;
+//		} else {
+//			sRend.color = disabledColor;
+//		}
+//		col.enabled = isActive;
 	}
 
 	public override void AffectPlayer(PlayerController pc) {}
