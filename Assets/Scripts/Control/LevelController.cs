@@ -96,8 +96,8 @@ public class LevelController : MonoBehaviour {
 		Transform child = track.GetChild (rowIndex);
 		if (child.gameObject.activeInHierarchy) {
 			child.gameObject.SetActive (false);
-			barrier.transform.Translate (new Vector3 (0, tileScale, 0));
-//			barrier.transform.position = new Vector3 (0, child.transform.position.y - 1 , 0);
+			//barrier.transform.Translate (new Vector3 (0, tileScale, 0));
+			barrier.transform.position = new Vector3 (0, child.transform.position.y, 0);
 			rowIndex++;
 		}
 	}
