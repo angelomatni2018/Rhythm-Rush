@@ -2118,7 +2118,9 @@ MonoBehaviour:
   targetPrefab: {fileID: 4189042516348330, guid: 7e2c10829d9d84b3db3a1a6b37288080,
     type: 2}
   pulseThreshold: 0.1
-  stunnedColor: {r: 0.9338235, g: 0.8940461, b: 0.35705018, a: 0}
+  stunnedColor: {r: 0.9338235, g: 0.8940461, b: 0.35705018, a: 1}
+  correctInputColor: {r: 0.3455882, g: 1, b: 0.3455882, a: 1}
+  wrongInputColor: {r: 1, g: 0.32352942, b: 0.32352942, a: 1}
   numPulsesPerInput: 4
   pulseToggledAt: 1
 --- !u!1 &397567919
