@@ -3683,10 +3683,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb2d: {fileID: 387230929}
   speed: 15
+  input_buffer_threshold: -1
   targetPrefab: {fileID: 4189042516348330, guid: 7e2c10829d9d84b3db3a1a6b37288080,
     type: 2}
-  pulseThreshold: 0.1
+  pulseThreshold: 0.2
   stunnedColor: {r: 0.9338235, g: 0.8940461, b: 0.35705018, a: 1}
+  correctInputColor: {r: 0, g: 1, b: 0, a: 1}
+  wrongInputColor: {r: 1, g: 0.59999996, b: 0, a: 1}
   numPulsesPerInput: 4
   pulseToggledAt: 1
 --- !u!1001 &389071015

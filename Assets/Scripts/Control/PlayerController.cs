@@ -13,10 +13,11 @@ public class PlayerController : MonoBehaviour {
 	public float speed;
 	private Vector2 offset;
 
-	float input_buffer_threshold;
+	public float input_buffer_threshold = -1;
 	float input_accuracy_threshold;
 	KeyCode last_input;
 	float last_input_time;
+	float last_correct_input_time;
 	int current_scale;
 
 	private Vector3[] targetPositions;
@@ -72,6 +73,7 @@ public class PlayerController : MonoBehaviour {
 		timer = 0;
 		stunnedUntil = 0;
 		last_input_time = 0;
+		last_correct_input_time = 0;
 		last_input = KeyCode.None;
 
 		normalColor = GetComponent<SpriteRenderer> ().color;
@@ -110,6 +112,8 @@ public class PlayerController : MonoBehaviour {
 		Func<int, Vector2> PosAt = i => (Vector2)(transform.position + i * key_directions [last_input]); 
 
 		bool stun = false;
+
+
 		Vector2 next_pos = (Vector2)transform.position;
 		for (int i = 1; i <= current_scale * distance; i++) {
 			next_pos = PosAt(i);
@@ -131,6 +135,10 @@ public class PlayerController : MonoBehaviour {
 		}
 		//print (next_pos + "  " + stun);
 		//rb2d.MovePosition (next_pos);
+
+		if (!stun && (last_input_time - last_correct_input_time < LevelController.quarterPulse / 2)) {
+			return true;
+		}
 		transform.position = next_pos;
 		return stun;
 	}
@@ -201,6 +209,7 @@ public class PlayerController : MonoBehaviour {
 			} else {
 				//print ("Correct! " + accuracy + "  " + current_scale);
 				// Upgrade speed factor
+				last_correct_input_time = last_input_time;
 				current_scale = Mathf.Min (3, current_scale + 1);
 			}
 		} else {
