@@ -9,7 +9,7 @@ public static class GameController
 	static List<string> level_names = new List<string>() {
 		"TestScene",
 		"Level1",
-		"Level2",
+		"Maze-Level",
 		"Level3"
 	};
 
