@@ -45,7 +45,7 @@ public class VanishingTile : BarrierTile
 
 	void OnTriggerEnter2D(Collider2D other) {
 		if (other.GetComponent<PlayerController> () != null) {
-			BarrierTile.FireDeath ();
+			BarrierTile.FireDeath ("Game Over! You were killed by the vanishing tile.");
 		}
 	}
 }

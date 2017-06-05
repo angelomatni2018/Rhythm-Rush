@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour {
 	public float speed;
 	private Vector2 offset;
 
-	public float input_buffer_threshold = -1;
+	float input_buffer_threshold;
 	float input_accuracy_threshold;
 	KeyCode last_input;
 	float last_input_time;
@@ -65,7 +65,7 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void Start () {
-		input_buffer_threshold = LevelController.quarterPulse * 2 * pulseThreshold;
+		input_buffer_threshold = LevelController.quarterPulse * pulseThreshold;
 		input_accuracy_threshold = LevelController.quarterPulse * pulseThreshold;
 		current_scale = 1;
 
@@ -166,6 +166,8 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
+		if (playerState == PlayerState.Dead)
+			return;
 		timer = Time.time - startTime;
 		/*if (PlayerAtTilePos (target)) {
 			rb2d.velocity = Vector3.zero;

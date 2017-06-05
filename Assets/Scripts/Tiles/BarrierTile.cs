@@ -4,16 +4,16 @@ using System;
 
 public class BarrierTile : Tile
 {
-	public static event EventHandler<EventArgs> barrierDeath;
+	public static event EventHandler<KillPlayerEventArgs> barrierDeath;
 
 	void OnTriggerEnter2D(Collider2D other) {
 		if (other.GetComponent<PlayerController> () != null) {
-			barrierDeath (null, new EventArgs ());
+			BarrierTile.FireDeath ("Game Over! The stage caught up to you.");
 		}
 	}
 
-	public static void FireDeath() {
-		barrierDeath (null, new EventArgs ());
+	public static void FireDeath(string deathText) {
+		barrierDeath (null, new KillPlayerEventArgs (deathText));
 	}
 }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using System;
 
 public class LevelController : MonoBehaviour {
@@ -40,6 +41,9 @@ public class LevelController : MonoBehaviour {
 	public static event EventHandler<PulseEventArgs> pulsed;
 
 	GameObject barrier;
+	EscapeMenu escapeMenu;
+	DeathMenu deathMenu;
+	bool gameOver;
 
 	void Awake() {
 		currentLevel = this;
@@ -66,6 +70,15 @@ public class LevelController : MonoBehaviour {
 
 		BarrierTile.barrierDeath += KillPlayer;
 		barrier = GameObject.Find ("BarrierCollider");
+
+		GameObject menu = Resources.Load ("UI/EscapeMenu") as GameObject;
+
+		escapeMenu = GameObject.Instantiate (menu).GetComponent<EscapeMenu> ();
+		escapeMenu.gameObject.SetActive (false);
+		menu = Resources.Load ("UI/DeathMenu") as GameObject;
+		deathMenu = GameObject.Instantiate (menu).GetComponent<DeathMenu> ();
+		deathMenu.gameObject.SetActive (false);
+		gameOver = false;
 	}
 
 	void OnDestroy() {
@@ -81,6 +94,8 @@ public class LevelController : MonoBehaviour {
 	}
 
 	void Update () {
+		if (gameOver)
+			return;
 		timer = Time.time - startTime;
 		if (timer > pulseActivations [0]) {
 			pulseActivations [0] += debugPulse / 2;
@@ -90,6 +105,10 @@ public class LevelController : MonoBehaviour {
 			pulseActivations [1] += debugPulse;
 			pulsed (null, new PulseEventArgs (PulseEventArgs.PulseValue.Full));
 		}
+
+		if (Input.GetKeyDown (KeyCode.Escape)) {
+			escapeMenu.gameObject.SetActive (!escapeMenu.gameObject.activeInHierarchy);
+		} 
 	}
 
 	void DisappearCurrentRow() {
@@ -136,10 +155,20 @@ public class LevelController : MonoBehaviour {
 		SceneManager.LoadScene (GameController.GetNextSceneName(sceneName));
 	}
 
-	public void KillPlayer(object sender, EventArgs e) {
-		//string sceneName = SceneManager.GetActiveScene ().name;
-		//SceneManager.LoadScene (sceneName);
+	public void LoadMenu() {
 		SceneManager.LoadScene (GameController.MainMenuScene);
+	}
+
+	public void ReloadLevel() {
+		SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
+	}
+
+	public void KillPlayer(object sender, KillPlayerEventArgs e) {
+		deathMenu.deathTextField.text = e.deathText;
+		deathMenu.gameObject.SetActive (true);
+		GameObject player = GameObject.Find ("Player");
+		player.GetComponent<PlayerController> ().KillPlayer ();
+		gameOver = true;
 	}
 }
 
@@ -153,5 +182,13 @@ public class PulseEventArgs : EventArgs {
 
 	public PulseEventArgs(PulseValue val) {
 		pulseValue = val;
+	}
+}
+
+public class KillPlayerEventArgs : EventArgs {
+	public string deathText;
+
+	public KillPlayerEventArgs(string text) {
+		deathText = text;
 	}
 }

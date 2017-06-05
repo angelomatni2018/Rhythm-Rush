@@ -14399,7 +14399,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugPulse: 1
   levelTileScaling: 1
-  pulsesPerRowDissapear: 10
+  pulsesPerRowDissapear: 2
   pulsesPerClick: 16
   debugDifficulty: 0
   clickSound: {fileID: 8300000, guid: c6e10124646c84f40968198024a4df15, type: 3}
